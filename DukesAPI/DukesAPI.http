@@ -1,0 +1,6 @@
+@DukesAPI_HostAddress = http://localhost:5221
+
+GET {{DukesAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
