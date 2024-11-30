@@ -64,7 +64,7 @@ namespace DukesAPI.Controllers.ESPN
                 return BadRequest(ex.Message);
             }
         }
-        // GET api/<EspnCollegeFootballScores>/5
+        // GET api/<EspnCollegeFootballGames>/5
         /// <summary>
         /// Returns scores for a specific college football game.
         /// </summary>
@@ -86,14 +86,14 @@ namespace DukesAPI.Controllers.ESPN
                 return BadRequest(new { Message = "An error occurred while fetching game information.", Details = ex.Message });
             }
         }
-        // GET api/<EspnCollegeFootballScores>/GetCFBTeamInformation/194
+        // GET api/<EspnCollegeFootballTeams>/GetCFBTeamInformation/194
         /// <summary>
         /// Returns team information based on the team ID.
         /// </summary>
         /// <param name="teamId">The ID of the team to retrieve information for. Example: teamId = 194</param>
         /// <returns>College football team information.</returns>
         [HttpGet("GetCFBTeamInformation/{teamId}")]
-        public ActionResult<RootObject> GetCollegeFootballTeamInformationAsync(string teamId)
+        public ActionResult<TeamModel> GetCollegeFootballTeamInformationAsync(string teamId)
         {
             Console.WriteLine($"ESPN/EspnCollegeFootball", "GET", $"Fetching team information for teamId: {teamId}");
 
@@ -106,6 +106,28 @@ namespace DukesAPI.Controllers.ESPN
             {
                 Console.WriteLine($"Error fetching team information for teamId {teamId}: {ex.Message}");
                 return BadRequest(new { Message = "An error occurred while fetching team information.", Details = ex.Message });
+            }
+        }
+
+        // GET api/<EspnCollegeFootballRankings>/GetCFBRankings/
+        /// <summary>
+        /// Returns college football rankings.
+        /// </summary>
+        /// <returns>College football rankings.</returns>
+        [HttpGet("GetCFBRankings")]
+        public ActionResult<RankingsModel> GetCollegeFootballRankingsAsync()
+        {
+            Console.WriteLine($"ESPN/EspnCollegeFootball", "GET", $"Fetching CFB rankings");
+
+            try
+            {
+                var teamInformation = _dataAccess.GetCollegeFootballRankingsAsync().Result;
+                return Ok(teamInformation);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching rankings: {ex.Message}");
+                return BadRequest(new { Message = "An error occurred while fetching rankings", Details = ex.Message });
             }
         }
 

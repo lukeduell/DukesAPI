@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DukesAPI.Models;
+using DukesAPI;
 
 namespace DukesAPI.DataAccess
 {
@@ -13,6 +14,7 @@ namespace DukesAPI.DataAccess
         Task<NewsResponse> GetCollegeFootballDataAsync();
         Task<Scores> GetCollegeFootballScoresAsync();
         Task<EventSummary> GetCollegeFootballGameInformationAsync(string gameId);
-        Task<RootObject> GetCollegeFootballTeamInformationAsync(string teamName);
+        Task<TeamModel> GetCollegeFootballTeamInformationAsync(string teamName);
+        Task<RankingsModel> GetCollegeFootballRankingsAsync();
     }
 }

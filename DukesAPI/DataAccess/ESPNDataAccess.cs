@@ -82,7 +82,7 @@ namespace DukesAPI.DataAccess
                 return null;
             }
         }
-        public async Task<RootObject> GetCollegeFootballTeamInformationAsync(string teamName)
+        public async Task<TeamModel> GetCollegeFootballTeamInformationAsync(string teamName)
         {
             string url = $"http://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/{teamName}";
             try
@@ -94,8 +94,30 @@ namespace DukesAPI.DataAccess
                 {
                     PropertyNameCaseInsensitive = false
                 };
-                var teamData = JsonSerializer.Deserialize<RootObject>(responseBody, settings);
+                var teamData = JsonSerializer.Deserialize<TeamModel>(responseBody, settings);
                 return teamData;
+            }
+            catch (HttpRequestException e)
+            {
+                // Handle errors that occur during the request
+                Console.WriteLine($"An error occurred: {e.Message}");
+                return null;
+            }
+        }
+        public async Task<RankingsModel> GetCollegeFootballRankingsAsync()
+        {
+            string url = $"http://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings";
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = false
+                };
+                var rankingsData = JsonSerializer.Deserialize<RankingsModel>(responseBody, settings);
+                return rankingsData;
             }
             catch (HttpRequestException e)
             {

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace DukesAPI.Models
 {
-    public class RootObject
+    public class TeamModel
     {
         [JsonPropertyName("team")]
         public TeamTI Team { get; set; }
