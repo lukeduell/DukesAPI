@@ -24,7 +24,6 @@ namespace DukesAPI.Controllers.ESPN
             _dataAccess = dataaccess;
         }
 
-
         //GET api/<EspnCollegeFootballNews>/5
         ///<summary>
         ///Returns news from college football
@@ -85,6 +84,28 @@ namespace DukesAPI.Controllers.ESPN
             {
                 Console.WriteLine($"Error fetching scores for gameId {gameId}: {ex.Message}");
                 return BadRequest(new { Message = "An error occurred while fetching game information.", Details = ex.Message });
+            }
+        }
+        // GET api/<EspnCollegeFootballScores>/GetCFBTeamInformation/194
+        /// <summary>
+        /// Returns team information based on the team ID.
+        /// </summary>
+        /// <param name="teamId">The ID of the team to retrieve information for. Example: teamId = 194</param>
+        /// <returns>College football team information.</returns>
+        [HttpGet("GetCFBTeamInformation/{teamId}")]
+        public ActionResult<RootObject> GetCollegeFootballTeamInformationAsync(string teamId)
+        {
+            Console.WriteLine($"ESPN/EspnCollegeFootball", "GET", $"Fetching team information for teamId: {teamId}");
+
+            try
+            {
+                var teamInformation = _dataAccess.GetCollegeFootballTeamInformationAsync(teamId).Result;
+                return Ok(teamInformation);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching team information for teamId {teamId}: {ex.Message}");
+                return BadRequest(new { Message = "An error occurred while fetching team information.", Details = ex.Message });
             }
         }
 

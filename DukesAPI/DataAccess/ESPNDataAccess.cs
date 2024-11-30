@@ -82,5 +82,27 @@ namespace DukesAPI.DataAccess
                 return null;
             }
         }
+        public async Task<RootObject> GetCollegeFootballTeamInformationAsync(string teamName)
+        {
+            string url = $"http://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/{teamName}";
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = false
+                };
+                var teamData = JsonSerializer.Deserialize<RootObject>(responseBody, settings);
+                return teamData;
+            }
+            catch (HttpRequestException e)
+            {
+                // Handle errors that occur during the request
+                Console.WriteLine($"An error occurred: {e.Message}");
+                return null;
+            }
+        }
     }
 }

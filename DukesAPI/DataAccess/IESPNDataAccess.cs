@@ -13,5 +13,6 @@ namespace DukesAPI.DataAccess
         Task<NewsResponse> GetCollegeFootballDataAsync();
         Task<Scores> GetCollegeFootballScoresAsync();
         Task<EventSummary> GetCollegeFootballGameInformationAsync(string gameId);
+        Task<RootObject> GetCollegeFootballTeamInformationAsync(string teamName);
     }
 }
