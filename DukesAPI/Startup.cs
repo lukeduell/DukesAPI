@@ -15,8 +15,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
-using Microsoft.AspNetCore.Authentication.;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using DukesAPI.Services;
 
 namespace DukesAPI
 {
@@ -31,6 +35,9 @@ namespace DukesAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var jwtSettings = Configuration.GetSection("Jwt");
+            var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+
             services.AddControllers();
             
             services.AddMvc();
@@ -42,16 +49,17 @@ namespace DukesAPI
             })
             .AddJwtBearer(options =>
             {
+                options.RequireHttpsMetadata = false; //SET THIS TO TRUE IN PROD
+                options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    // Configure your token validation parameters
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"], // Set in appsettings.json
-                    ValidAudience = Configuration["Jwt:Audience"], // Set in appsettings.json
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"])) // Set in appsettings.json
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
             });
 
@@ -59,7 +67,6 @@ namespace DukesAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DukesAPI", Version = "v1" });
 
-                // Add this if you're using authorization to ensure it reflects in Swagger.
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -85,12 +92,11 @@ namespace DukesAPI
                 });
             });
 
-
-
             services.AddHttpClient();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IEspnNFL, EspnNFL>();
             services.AddSingleton<IEspnMLB, EspnMLB>();
+            services.AddSingleton<IUserService, UserService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -104,14 +110,14 @@ namespace DukesAPI
                 app.UseHsts();
             }
 
-            app.UseRouting(); // Ensure that routing is enabled
+            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();  // Map attribute-routed controllers
+                endpoints.MapControllers();
             });
 
             app.UseSwagger();
