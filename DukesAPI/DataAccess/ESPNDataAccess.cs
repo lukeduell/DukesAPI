@@ -8,7 +8,7 @@ using DukesAPI.Models;
 
 namespace DukesAPI.DataAccess
 {
-    public class ESPNDataAccess
+    public class ESPNDataAccess : IESPNDataAccess
     {
         private readonly HttpClient _httpClient;
         public ESPNDataAccess(HttpClient httpClient)
@@ -24,8 +24,56 @@ namespace DukesAPI.DataAccess
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
-                var newsData = JsonSerializer.Deserialize<NewsResponse>(responseBody);
+                var settings = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var newsData = JsonSerializer.Deserialize<NewsResponse>(responseBody, settings);
                 return newsData;
+            }
+            catch (HttpRequestException e)
+            {
+                // Handle errors that occur during the request
+                Console.WriteLine($"An error occurred: {e.Message}");
+                return null;
+            }
+        }
+        public async Task<Scores> GetCollegeFootballScoresAsync()
+        {
+            string url = "http://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard";
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = false
+                };
+                var scoresData = JsonSerializer.Deserialize<Scores>(responseBody, settings);
+                return scoresData;
+            }
+            catch (HttpRequestException e)
+            {
+                // Handle errors that occur during the request
+                Console.WriteLine($"An error occurred: {e.Message}");
+                return null;
+            }
+        }
+        public async Task<EventSummary> GetCollegeFootballGameInformationAsync(string gameId)
+        {
+            string url = $"http://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event={gameId}";
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var settings = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = false
+                };
+                var scoresData = JsonSerializer.Deserialize<EventSummary>(responseBody, settings);
+                return scoresData;
             }
             catch (HttpRequestException e)
             {

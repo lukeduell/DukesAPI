@@ -11,5 +11,7 @@ namespace DukesAPI.DataAccess
     public interface IESPNDataAccess
     {
         Task<NewsResponse> GetCollegeFootballDataAsync();
+        Task<Scores> GetCollegeFootballScoresAsync();
+        Task<EventSummary> GetCollegeFootballGameInformationAsync(string gameId);
     }
 }

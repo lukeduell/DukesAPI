@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using DukesAPI.Services;
+using DukesAPI.DataAccess;
 
 namespace DukesAPI
 {
@@ -59,7 +60,7 @@ namespace DukesAPI
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     ValidAudience = Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
 
@@ -76,19 +77,19 @@ namespace DukesAPI
                     Scheme = "Bearer"
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    new OpenApiSecurityScheme {
-                        Reference = new OpenApiReference {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
                         },
-                        Scheme = "oauth2",
-                        Name = "Bearer",
-                        In = ParameterLocation.Header,
-                    },
-                    new List<string>()
-                }
+                        Array.Empty<string>()
+                    }
                 });
             });
 
@@ -97,6 +98,7 @@ namespace DukesAPI
             services.AddSingleton<IEspnNFL, EspnNFL>();
             services.AddSingleton<IEspnMLB, EspnMLB>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IESPNDataAccess, ESPNDataAccess>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
