@@ -33,13 +33,17 @@ public class AuthController : ControllerBase
 
         var token = GenerateJwtToken(loginRequest.Username);
 
-        return Ok(new LoginResponse { Token = token });
+        // Log the token
+        Console.WriteLine($"Generated Token: {token}");
+
+        // Alternatively, return the token directly for testing purposes
+        return Ok(new { Token = token });
     }
 
     private string GenerateJwtToken(string username)
     {
         var jwtSettings = _configuration.GetSection("Jwt");
-        var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+        var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

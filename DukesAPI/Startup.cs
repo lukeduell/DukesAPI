@@ -22,6 +22,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using DukesAPI.Services;
 using DukesAPI.DataAccess;
+using MySqlConnector.Authentication;
+using MySqlConnector;
+using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+
 
 namespace DukesAPI
 {
@@ -70,9 +75,9 @@ namespace DukesAPI
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                    Name = "Authorization",
                     In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field. Example: 'Bearer {token}'",
+                    Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
                 });
@@ -82,11 +87,11 @@ namespace DukesAPI
                     {
                         new OpenApiSecurityScheme
                         {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
+                              Reference = new OpenApiReference
+                              {
+                                  Type = ReferenceType.SecurityScheme,
+                                  Id = "Bearer"
+                              }
                         },
                         Array.Empty<string>()
                     }
@@ -99,6 +104,11 @@ namespace DukesAPI
             services.AddSingleton<IEspnMLB, EspnMLB>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IESPNDataAccess, ESPNDataAccess>();
+
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<DukesApiDb>(options =>
+                options.UseMySql(connectionString, MySqlServerVersion.AutoDetect(connectionString)));
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
