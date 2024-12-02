@@ -27,7 +27,6 @@ using MySqlConnector;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
-
 namespace DukesAPI
 {
     public class Startup
