@@ -13,7 +13,7 @@ namespace DukesAPI.Controllers.ESPN
 {
     [Route("api/espn/college-football")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
 
     public class EspnCollegeFootball: ControllerBase
     {

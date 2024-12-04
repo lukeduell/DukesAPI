@@ -1,0 +1,14 @@
+- name: Upload Artifact to S3
+  run: |
+    aws s3 cp publish.zip s3://${{ secrets.STHREE_BUCKET_NAME }}/deployments/${{ github.sha }}.zip
+
+- name: Deploy to Elastic Beanstalk
+  run: |
+    aws elasticbeanstalk create-application-version \
+      --application-name ${{ secrets.EB_APP_NAME }} \
+      --version-label ${{ github.sha }} \
+      --source-bundle S3Bucket=${{ secrets.STHREE_BUCKET_NAME }},S3Key=deployments/${{ github.sha }}.zip
+
+    aws elasticbeanstalk update-environment \
+      --environment-name ${{ secrets.EB_ENV_NAME }} \
+      --version-label ${{ github.sha }}

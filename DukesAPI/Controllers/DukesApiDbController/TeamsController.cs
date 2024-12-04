@@ -4,11 +4,13 @@ using DukesAPI.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DukesAPI.DataAccess;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DukesAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TeamsController : ControllerBase
     {
         private readonly DukesApiDb _context;
