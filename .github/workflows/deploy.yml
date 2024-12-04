@@ -1,14 +1,53 @@
-- name: Upload Artifact to S3
-  run: |
-    aws s3 cp publish.zip s3://${{ secrets.STHREE_BUCKET_NAME }}/deployments/${{ github.sha }}.zip
+name: Deploy to AWS Elastic Beanstalk
 
-- name: Deploy to Elastic Beanstalk
-  run: |
-    aws elasticbeanstalk create-application-version \
-      --application-name ${{ secrets.EB_APP_NAME }} \
-      --version-label ${{ github.sha }} \
-      --source-bundle S3Bucket=${{ secrets.STHREE_BUCKET_NAME }},S3Key=deployments/${{ github.sha }}.zip
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on pushes to the main branch
 
-    aws elasticbeanstalk update-environment \
-      --environment-name ${{ secrets.EB_ENV_NAME }} \
-      --version-label ${{ github.sha }}
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x' # Specify your .NET version
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish --configuration Release --no-restore --output ./publish
+
+      - name: Zip Artifact
+        run: zip -r publish.zip ./publish
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload Artifact to S3
+        run: |
+          aws s3 cp publish.zip s3://${{ secrets.STHREE_BUCKET_NAME }}/deployments/${{ github.sha }}.zip
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ secrets.EB_APP_NAME }} \
+            --version-label ${{ github.sha }} \
+            --source-bundle S3Bucket=${{ secrets.STHREE_BUCKET_NAME }},S3Key=deployments/${{ github.sha }}.zip
+
+          aws elasticbeanstalk update-environment \
+            --environment-name ${{ secrets.EB_ENV_NAME }} \
+            --version-label ${{ github.sha }}
